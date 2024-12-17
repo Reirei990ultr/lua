@@ -1,0 +1,71 @@
+--  Libray Gui Exploit
+local GUI = {}
+
+
+function GUI:createButton(parent, text, size, position, callback)
+    local button = Instance.new("TextButton")
+    button.Parent = parent
+    button.Size = size
+    button.Position = position
+    button.Text = text
+    button.BackgroundColor3 = Color3.new(0, 0.5, 1)
+    button.TextColor3 = Color3.new(1, 1, 1)
+    button.Font = Enum.Font.SourceSans
+    button.TextSize = 24
+    button.AutoButtonColor = false
+
+    button.MouseButton1Click:Connect(function()
+        callback()
+    end)
+
+    return button
+end
+
+
+function GUI:createPanel(parent, size, position, backgroundColor)
+    local panel = Instance.new("Frame")
+    panel.Parent = parent
+    panel.Size = size
+    panel.Position = position
+    panel.BackgroundColor3 = backgroundColor
+    panel.BorderSizePixel = 0
+
+    return panel
+end
+
+
+function GUI:makeDraggable(element)
+    local dragging = false
+    local dragInput
+    local startPos
+    local startElementPos
+
+    element.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true
+            startPos = input.Position
+            startElementPos = element.Position
+
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    dragging = false
+                end
+            end)
+        end
+    end)
+
+    element.InputChanged:Connect(function(input)
+        if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+            dragInput = input
+        end
+    end)
+
+    game:GetService("RunService").RenderStepped:Connect(function()
+        if dragging and dragInput then
+            local delta = dragInput.Position - startPos
+            element.Position = UDim2.new(startElementPos.X.Scale, startElementPos.X.Offset + delta.X, startElementPos.Y.Scale, startElementPos.Y.Offset + delta.Y)
+        end
+    end)
+end
+
+return GUI
