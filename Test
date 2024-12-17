@@ -1,0 +1,16 @@
+local players = game:GetService("Players")
+local screenGui = Instance.new("ScreenGui", players.LocalPlayer:WaitForChild("PlayerGui"))
+local GUI = loadstring(game:HttpGet('https://raw.githubusercontent.com/Reirei990ultr/lua/refs/heads/main/Gui%20script%20library'))()
+
+local mainPanel = GUI:createPanel(screenGui, UDim2.new(0, 400, 0, 300), UDim2.new(0.5, -200, 0.5, -150), Color3.new(0.1, 0.1, 0.1))
+GUI:makeDraggable(mainPanel)
+
+local toggleButton = GUI:createButton(mainPanel, "Ativar Grab Aura", UDim2.new(0, 200, 0, 50), UDim2.new(0.5, -100, 0.5, -25), function()
+    print("Botão ativado!")
+    -- Aqui você pode adicionar a lógica para ativar a função de grab aura
+end)
+
+local exitButton = GUI:createButton(mainPanel, "Sair", UDim2.new(0, 200, 0, 50), UDim2.new(0.5, -100, 0.5, 30), function()
+    print("Saindo...")
+    mainPanel:Destroy() -- Fecha o painel quando o botão é clicado
+end)
