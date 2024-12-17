@@ -2,15 +2,29 @@ local players = game:GetService("Players")
 local screenGui = Instance.new("ScreenGui", players.LocalPlayer:WaitForChild("PlayerGui"))
 local GUI = loadstring(game:HttpGet('https://raw.githubusercontent.com/Reirei990ultr/lua/refs/heads/main/Gui%20script%20library'))()
 
-local mainPanel = GUI:createPanel(screenGui, UDim2.new(0, 400, 0, 300), UDim2.new(0.5, -200, 0.5, -150), Color3.new(0.1, 0.1, 0.1))
-GUI:makeDraggable(mainPanel)
+local mainPanel = GUI:createPanel(screenGui, UDim2.new(0, 400, 0, 500), UDim2.new(0.5, -200, 0.5, -250), Color3.new(0.1, 0.1, 0.1))
 
-local toggleButton = GUI:createButton(mainPanel, "Ativar Grab Aura", UDim2.new(0, 200, 0, 50), UDim2.new(0.5, -100, 0.5, -25), function()
-    print("Botão ativado!")
-    -- Aqui você pode adicionar a lógica para ativar a função de grab aura
+-- Criar um botão
+GUI:createButton(mainPanel, "Clique Aqui", UDim2.new(0, 200, 0, 50), UDim2.new(0.5, -100, 0, 10), 0.5, function()
+    print("Botão clicado!")
 end)
 
-local exitButton = GUI:createButton(mainPanel, "Sair", UDim2.new(0, 200, 0, 50), UDim2.new(0.5, -100, 0.5, 30), function()
-    print("Saindo...")
-    mainPanel:Destroy() -- Fecha o painel quando o botão é clicado
+-- Criar um slider
+GUI:createSlider(mainPanel, UDim2.new(0, 300, 0, 30), UDim2.new(0.5, -150, 0, 70), 0, 100, 50, function(value)
+    print("Slider Value: " .. value)
+end)
+
+-- Criar um toggle
+GUI:createToggle(mainPanel, "Ativar Função", UDim2.new(0, 200, 0, 50), UDim2.new(0.5, -100, 0, 120), false, function(value)
+    print("Função ativada: " .. tostring(value))
+end)
+
+-- Criar um dropdown
+GUI:createDropdown(mainPanel, {"Opção 1", "Opção 2", "Opção 3"}, UDim2.new(0, 200, 0, 50), UDim2.new(0.5, -100, 0, 180), function(selectedOption)
+    print("Opção selecionada: " .. selectedOption)
+end)
+
+-- Criar um campo de entrada de texto
+GUI:createInputField(mainPanel, "Digite algo...", UDim2.new(0, 300, 0, 50), UDim2.new(0.5, -150, 0, 240), function(inputText)
+    print("Texto inserido: " .. inputText)
 end)
