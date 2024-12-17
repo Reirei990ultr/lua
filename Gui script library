@@ -1,8 +1,22 @@
---  Libray Gui Exploit
+--  Gui Libray Exploits Xd Edit
+local TweenService = game:GetService("TweenService")
+
 local GUI = {}
 
+-- Função para criar um novo painel
+function GUI:createPanel(parent, size, position, backgroundColor)
+    local panel = Instance.new("Frame")
+    panel.Parent = parent
+    panel.Size = size
+    panel.Position = position
+    panel.BackgroundColor3 = backgroundColor
+    panel.BorderSizePixel = 0
 
-function GUI:createButton(parent, text, size, position, callback)
+    return panel
+end
+
+-- Função para criar um novo botão
+function GUI:createButton(parent, text, size, position, animationDuration, callback)
     local button = Instance.new("TextButton")
     button.Parent = parent
     button.Size = size
@@ -18,54 +32,189 @@ function GUI:createButton(parent, text, size, position, callback)
         callback()
     end)
 
+    button.TextTransparency = 1
+    local tweenInfo = TweenInfo.new(animationDuration or 0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+    local tween = TweenService:Create(button, tweenInfo, {TextTransparency = 0})
+    tween:Play()
+
     return button
 end
 
+-- Função para criar um slider
+function GUI:createSlider(parent, size, position, minValue, maxValue, initialValue, callback)
+    local sliderFrame = Instance.new("Frame")
+    sliderFrame.Parent = parent
+    sliderFrame.Size = size
+    sliderFrame.Position = position
+    sliderFrame.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
 
-function GUI:createPanel(parent, size, position, backgroundColor)
-    local panel = Instance.new("Frame")
-    panel.Parent = parent
-    panel.Size = size
-    panel.Position = position
-    panel.BackgroundColor3 = backgroundColor
-    panel.BorderSizePixel = 0
+    local sliderBar = Instance.new("Frame")
+    sliderBar.Parent = sliderFrame
+    sliderBar.Size = UDim2.new(1, 0, 0, 10)
+    sliderBar.Position = UDim2.new(0, 0, 0.5, -5)
+    sliderBar.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5)
 
-    return panel
+    local sliderButton = Instance.new("TextButton")
+    sliderButton.Parent = sliderFrame
+    sliderButton.Size = UDim2.new(0, 15, 0, 15)
+    sliderButton.Position = UDim2.new(0, 0, 0.5, -7.5)
+    sliderButton.BackgroundColor3 = Color3.new(0, 0.7, 0)
+    sliderButton.Text = ""
+
+    local function updateSlider(value)
+        sliderButton.Position = UDim2.new((value - minValue) / (maxValue - minValue), -7.5, 0.5, -7.5)
+        callback(value)
+    end
+
+    local dragging = false
+
+    sliderButton.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = true
+        end
+    end)
+
+    sliderButton.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = false
+        end
+    end)
+
+    sliderFrame.InputChanged:Connect(function(input)
+        if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement) then
+            local mouseX = input.Position.X
+            local sliderX = sliderFrame.AbsolutePosition.X
+            local value = math.clamp(((mouseX - sliderX) / sliderFrame.AbsoluteSize.X) * (maxValue - minValue) + minValue, minValue, maxValue)
+            updateSlider(value)
+        end
+    end)
+
+    updateSlider(initialValue) -- Set initial value
+    return sliderFrame
 end
 
+-- Função para criar um toggle switch
+function GUI:createToggle(parent, text, size, position, initialValue, callback)
+    local toggleFrame = Instance.new("Frame")
+    toggleFrame.Parent = parent
+    toggleFrame.Size = size
+    toggleFrame.Position = position
+    toggleFrame.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
 
-function GUI:makeDraggable(element)
-    local dragging = false
-    local dragInput
-    local startPos
-    local startElementPos
+    local toggleLabel = Instance.new("TextLabel")
+    toggleLabel.Parent = toggleFrame
+    toggleLabel.Size = UDim2.new(1, 0, 1, 0)
+    toggleLabel.Text = text
+    toggleLabel.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+    toggleLabel.TextColor3 = Color3.new(1, 1, 1)
+    toggleLabel.Font = Enum.Font.SourceSans
+    toggleLabel.TextSize = 24
 
-    element.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-            dragging = true
-            startPos = input.Position
-            startElementPos = element.Position
+    local toggleButton = Instance.new("TextButton")
+    toggleButton.Parent = toggleFrame
+    toggleButton.Size = UDim2.new(0, 50, 0, 30)
+    toggleButton.Position = UDim2.new(1, -55, 0.5, -15)
+    toggleButton.BackgroundColor3 = initialValue and Color3.new(0, 1, 0) or Color3.new(1, 0, 0)
+    toggleButton.Text = ""
 
-            input.Changed:Connect(function()
-                if input.UserInputState == Enum.UserInputState.End then
-                    dragging = false
-                end
-            end)
+    toggleButton.MouseButton1Click:Connect(function()
+        initialValue = not initialValue
+        toggleButton.BackgroundColor3 = initialValue and Color3.new(0, 1, 0) or Color3.new(1, 0, 0)
+        callback(initialValue)
+    end)
+
+    return toggleFrame
+end
+
+-- Função para criar um dropdown
+function GUI:createDropdown(parent, options, size, position, callback)
+    local dropdownFrame = Instance.new("Frame")
+    dropdownFrame.Parent = parent
+    dropdownFrame.Size = size
+    dropdownFrame.Position = position
+    dropdownFrame.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+
+    local dropdownLabel = Instance.new("TextLabel")
+    dropdownLabel.Parent = dropdownFrame
+    dropdownLabel.Size = UDim2.new(1, 0, 1, 0)
+    dropdownLabel.Text = options[1]
+    dropdownLabel.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+    dropdownLabel.TextColor3 = Color3.new(1, 1, 1)
+    dropdownLabel.Font = Enum.Font.SourceSans
+    dropdownLabel.TextSize = 24
+
+    local dropdownButton = Instance.new("TextButton")
+    dropdownButton.Parent = dropdownFrame
+    dropdownButton.Size = UDim2.new(1, 0, 1, 0)
+    dropdownButton.BackgroundColor3 = Color3.new(0, 0.5, 1)
+    dropdownButton.Text = "▼"
+    dropdownButton.TextColor3 = Color3.new(1, 1, 1)
+    dropdownButton.Font = Enum.Font.SourceSans
+    dropdownButton.TextSize = 24
+
+    local dropdownList = Instance.new("Frame")
+    dropdownList.Parent = dropdownFrame
+    dropdownList.Size = UDim2.new(1, 0, 0, 0)
+    dropdownList.Position = UDim2.new(0, 0, 1, 0)
+    dropdownList.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+    dropdownList.Visible = false
+
+    local function toggleDropdown()
+        dropdownList.Visible = not dropdownList.Visible
+        if dropdownList.Visible then
+            dropdownList.Size = UDim2.new(1, 0, 0, #options * 30)
+        else
+            dropdownList.Size = UDim2.new(1, 0, 0, 0)
+        end
+    end
+
+    dropdownButton.MouseButton1Click:Connect(toggleDropdown)
+
+    for _, option in ipairs(options) do
+        local optionButton = Instance.new("TextButton")
+        optionButton.Parent = dropdownList
+        optionButton.Size = UDim2.new(1, 0, 0, 30)
+        optionButton.Text = option
+        optionButton.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+        optionButton.TextColor3 = Color3.new(1, 1, 1)
+        optionButton.Font = Enum.Font.SourceSans
+        optionButton.TextSize = 22
+
+        optionButton.MouseButton1Click:Connect(function()
+            dropdownLabel.Text = option
+            callback(option)
+            toggleDropdown()
+        end)
+    end
+
+    return dropdownFrame
+end
+
+-- Função para criar um campo de entrada de texto
+function GUI:createInputField(parent, placeholderText, size, position, callback)
+    local inputFrame = Instance.new("Frame")
+    inputFrame.Parent = parent
+    inputFrame.Size = size
+    inputFrame.Position = position
+    inputFrame.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+
+    local inputBox = Instance.new("TextBox")
+    inputBox.Parent = inputFrame
+    inputBox.Size = UDim2.new(1, 0, 1, 0)
+    inputBox.BackgroundColor3 = Color3.new(0.3, 0.3, 0.3)
+    inputBox.TextColor3 = Color3.new(1, 1, 1)
+    inputBox.Font = Enum.Font.SourceSans
+    inputBox.TextSize = 24
+    inputBox.PlaceholderText = placeholderText
+    inputBox.PlaceholderColor3 = Color3.new(0.7, 0.7, 0.7)
+
+    inputBox.FocusLost:Connect(function(enterPressed)
+        if enterPressed then
+            callback(inputBox.Text)
         end
     end)
 
-    element.InputChanged:Connect(function(input)
-        if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
-            dragInput = input
-        end
-    end)
-
-    game:GetService("RunService").RenderStepped:Connect(function()
-        if dragging and dragInput then
-            local delta = dragInput.Position - startPos
-            element.Position = UDim2.new(startElementPos.X.Scale, startElementPos.X.Offset + delta.X, startElementPos.Y.Scale, startElementPos.Y.Offset + delta.Y)
-        end
-    end)
+    return inputFrame
 end
 
 return GUI
